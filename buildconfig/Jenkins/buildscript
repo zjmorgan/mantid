@@ -285,7 +285,7 @@ if [[ ${DO_BUILD_PKG} == true ]]; then
         if [[ ${JOB_NAME} == release* ]] && [[ -z "${PACKAGE_SUFFIX}" ]]; then
             # Traditional install path for release build
             PACKAGINGVARS="${PACKAGINGVARS} -DCMAKE_INSTALL_PREFIX=/opt/Mantid -DCPACK_PACKAGE_SUFFIX="
-        elif [[ ${JOB_NAME} == ornl ]] && [[ -z "${PACKAGE_SUFFIX}" ]]; then
+        elif [[ ${JOB_NAME} == ornl-stable ]] && [[ -z "${PACKAGE_SUFFIX}" ]]; then
             # Traditional install path for release build
             PACKAGINGVARS="${PACKAGINGVARS} -DCMAKE_INSTALL_PREFIX=/opt/Mantid -DCPACK_PACKAGE_SUFFIX="
         else
