@@ -12,9 +12,9 @@
 #include "MantidAPI/Run.h"
 #include "MantidAPI/Sample.h"
 #include "MantidDataObjects/PeaksWorkspace.h"
+#include "MantidGeometry/Crystal/IndexingUtils.h"
 #include "MantidGeometry/Crystal/OrientedLattice.h"
 #include "MantidGeometry/Instrument.h"
-
 #include <boost/algorithm/string.hpp>
 #include <boost/math/special_functions/round.hpp>
 #include <cmath>
@@ -46,7 +46,7 @@ SCDCalibratePanels2ObjFunc::SCDCalibratePanels2ObjFunc() {
   // rotation axis is defined as (1, theta, phi)
   // https://en.wikipedia.org/wiki/Spherical_coordinate_system
   declareParameter("Theta", PI / 4, "Polar coordinates theta in radians");
-  declareParameter("Phi", PI / 4, "Polar coordinates phi in radians");
+  declareParameter("Phi", PI / 2, "Polar coordinates phi in radians");
   // rotation angle
   declareParameter("DeltaRotationAngle", 0.0,
                    "angle of relative rotation in degree");
@@ -69,6 +69,11 @@ void SCDCalibratePanels2ObjFunc::setPeakWorkspace(
 
   // Set the iteration count
   n_iter = 0;
+
+  for (int i = 0; i < m_pws->getNumberPeaks(); ++i) {
+    m_tofs.push_back(m_pws->getPeak(i).getTOF());
+  }
+
 }
 
 /**
@@ -79,7 +84,8 @@ void SCDCalibratePanels2ObjFunc::setPeakWorkspace(
  * @param xValues :: feature vector [shiftx3, rotx3, T0]
  * @param order   :: dimensionality of feature vector
  */
-void SCDCalibratePanels2ObjFunc::function1D(double *out, const double *xValues,
+void SCDCalibratePanels2ObjFunc::function1D(double *out, 
+                                            const double *xValues,
                                             const size_t order) const {
   // Get the feature vector component (numeric type)
   //-- delta in translation
@@ -112,6 +118,48 @@ void SCDCalibratePanels2ObjFunc::function1D(double *out, const double *xValues,
   // Debugging related
   IPeaksWorkspace_sptr pws_ref = m_pws->clone();
 
+  //std::vector<V3D> hkls;
+  //hkls.reserve(pws->getNumberPeaks());
+  // std::vector<V3D> qvs;
+  // qvs.reserve(pws->getNumberPeaks());
+
+  // std::vector<V3D> intHKLs;
+  // intHKLs.reserve(pws->getNumberPeaks());
+  // std::vector<V3D> HKLs;
+  // HKLs.reserve(pws->getNumberPeaks());
+
+  const double c = 3.956034012071464e-07;
+
+  // for (int i = 0; i < pws->getNumberPeaks(); ++i) {
+
+  //   auto r = pws->getPeak(i).getGoniometerMatrix();
+
+  //   double L1 = -pws->getInstrument()->getSource()->getPos().Z();    
+  //   double L2 =  pws->getInstrument()->getDetector(pws->getPeak(i).getDetectorID())->getPos().norm();
+
+  //   V3D pos = pws->getInstrument()->getDetector(pws->getPeak(i).getDetectorID())->getPos();
+    
+  //   double tof = tofs[i];
+
+  //   double lamda = c*tof/(L1+L2)*1e+4;
+    
+  //   double two_theta = acos(pos[2]/L2);
+  //   double az = atan2(pos[1],pos[0]);
+    
+  //   double k = 2*PI/lamda;
+    
+  //   V3D ql = V3D(-k*sin(two_theta)*cos(az), -k*sin(two_theta)*sin(az), -k*(cos(two_theta)-1));
+
+  //   auto r_inv = r.Transpose();
+
+  //   V3D qv = r_inv * ql;
+
+  //   dqvs.push_back(qv-pws->getPeak(i).getQSampleFrame());
+
+  // }
+
+  //pws = recalculateUBIndexPeaks(pws);
+
   // NOTE: when optimizing T0, a none component will be passed in.
   if (m_cmpt != "none/sixteenpack") {
     // rotation
@@ -121,6 +169,22 @@ void SCDCalibratePanels2ObjFunc::function1D(double *out, const double *xValues,
     pws = moveInstruentComponentBy(dx, dy, dz, m_cmpt, pws);
   }
 
+  //auto lat = pws->sample().getOrientedLattice();
+  //auto ub = lat.getUB();
+
+  //auto ub_inv = ub.Invert();
+
+  // for (int i = 0; i < pws->getNumberPeaks(); ++i) {
+  //   pws->removePeak(i);
+  // }
+
+  Instrument_const_sptr inst = pws->getInstrument();
+  IPeaksWorkspace_sptr pw = std::make_shared<PeaksWorkspace>();
+  pw->setInstrument(inst);
+
+  auto lattice = std::make_unique<OrientedLattice>(pws->sample().getOrientedLattice());
+  pw->mutableSample().setOrientedLattice(std::move(lattice));
+
   // TODO:
   // need to do something with dT0
 
@@ -128,22 +192,95 @@ void SCDCalibratePanels2ObjFunc::function1D(double *out, const double *xValues,
   // double residual = 0.0;
   for (int i = 0; i < pws->getNumberPeaks(); ++i) {
     // cache TOF
-    const double tof = pws->getPeak(i).getTOF();
+    //double tof = pws->getPeak(i).getTOF();
 
-    Peak pk = Peak(pws->getPeak(i));
-    // update instrument
-    pk.setInstrument(pws->getInstrument());
-    // update detector ID
-    pk.setDetectorID(pws->getPeak(i).getDetectorID());
-    // calculate&set wavelength based on new instrument
-    Units::Wavelength wl;
-    wl.initialize(pk.getL1(), pk.getL2(), pk.getScattering(), 0,
-                  pk.getInitialEnergy(), 0.0);
-    pk.setWavelength(wl.singleFromTOF(tof));
+    // auto r = pws->getPeak(i).getGoniometerMatrix();
 
-    V3D qv = pk.getQSampleFrame();
-    for (int j = 0; j < 3; ++j)
-      out[i * 3 + j] = qv[j];
+    // //auto ub = pws->sample().getOrientedLattice().getUB();
+    // //V3D qv_target = r * ub * pws->getPeak(i).getIntHKL();
+    // //qv_target *= 2 * PI;
+
+    // //double lamda = 4 * PI * fabs(qv_target.Z()) / qv_target.norm2();
+
+    double L1 = -inst->getSource()->getPos().Z();    
+    double L2 =  inst->getDetector(pws->getPeak(i).getDetectorID())->getPos().norm();
+
+    // V3D pos = pws->getInstrument()->getDetector(pws->getPeak(i).getDetectorID())->getPos();
+    
+    double tof = m_tofs[i];
+
+    double lamda = c*tof/(L1+L2)*1e+4;
+    
+    // double two_theta = acos(pos[2]/L2);
+    // double az = atan2(pos[1],pos[0]);
+
+    // //double d = lamda/(2*sin(two_theta/2));
+
+    // //double lamda = pws->getPeak(i).getWavelength();
+    
+    //double k = 2*PI/lamda;
+    
+    // V3D ql = V3D(-k*sin(two_theta)*cos(az), -k*sin(two_theta)*sin(az), -k*(cos(two_theta)-1));
+
+    // auto r_inv = r.Transpose();
+
+    // V3D qv = r_inv * ql;
+
+    // qvs.push_back(qv);
+
+    //V3D qv = lat.hklFromQ(qs);
+
+    //Units::Wavelength wl;
+    //wl.initialize(pws->getPeak(i).getL1(), pws->getPeak(i).getL2(), pws->getPeak(i).getScattering(), 0,
+    //            pws->getPeak(i).getInitialEnergy(), 0.0);
+    //pws->getPeak(i).setWavelength(wl.singleFromTOF(tofs[i]));
+
+    //pws->getPeak(i).setQSampleFrame(pws->getPeak(i).getQSampleFrame(), pws->getPeak(i).getL2());
+
+    // Peak pk = Peak(pws->getPeak(i));
+    // pk.setInstrument(inst);
+    // //pk.removeContributingDetector(pws->getPeak(i).getDetectorID());
+    // pk.setDetectorID(pws->getPeak(i).getDetectorID());
+    // Units::Wavelength wl;
+    // wl.initialize(pk.getL1(), pk.getL2(), pk.getScattering(), 0,
+    //                 pk.getInitialEnergy(), 0.0);
+    // pk.setWavelength(wl.singleFromTOF(m_tofs[i]));
+
+    Peak pk = Peak(inst, pws->getPeak(i).getDetectorID(), lamda);
+
+    pk.setGoniometerMatrix(pws->getPeak(i).getGoniometerMatrix());  
+    pk.setRunNumber(pws->getPeak(i).getRunNumber());
+
+    pw->addPeak(pk);
+
+
+
+    //V3D qv = pk.getQSampleFrame();
+
+    //qvs.push_back(qv);
+
+    //pws->addPeak(pk);
+
+    //Peak pk = pws->getPeak(i);
+
+    //pk.setInstrument(pws->getInstrument());
+    //pk.setWavelength(lamda);
+
+    //pws->getPeak(i).removeContributingDetector(pk.getDetectorID());
+    //pws->getPeak(i).setQSampleFrame(pk.getQSampleFrame(), pk.getL2());
+    //pws->getPeak(i).setDetectorID(pk.getDetectorID());
+
+    //V3D hkl = lat.hklFromQ(pk.getQSampleFrame());
+    
+    // pk.setWavelength(lamda);
+
+    //std::unique_ptr<Peak> pk;
+
+    //pk = std::make_unique<Peak>(pws->getInstrument(), pws->getPeak(i).getDetectorID(), lamda);
+
+    //V3D qv = pk->getQSampleFrame();
+    //for (int j = 0; j < 3; ++j)
+    //  out[i * 3 + j] = qv[j];
 
     // check the difference between n and target
     // auto ubm = pws->sample().getOrientedLattice().getUB();
@@ -152,7 +289,54 @@ void SCDCalibratePanels2ObjFunc::function1D(double *out, const double *xValues,
     // V3D delta_qv = qv - qv_target;
     // residual += delta_qv.norm2();
   }
+  //auto lat = pws->sample().getOrientedLattice();
 
+  //pws = recalculateUBIndexPeaks(pws);
+  //for (int i = 0; i < pws->getNumberPeaks(); ++i) {
+  //    intHKLs.push_back(pws->getPeak(i).getIntHKL());
+  //}
+
+  // determine the lattice constants
+  //Kernel::Matrix<double> UB(3, 3);
+
+  //for (int i = 0; i < pws->getNumberPeaks(); ++i) {
+  //    HKLs.push_back(lat.hklFromQ(qvs[i]));
+  //}
+
+  // IndexingUtils::Optimize_UB(UB, intHKLs, qvs);
+
+  // lat.setUB(UB);
+
+  // for (int i = 0; i < pws->getNumberPeaks(); ++i) {
+  //     HKLs.push_back(lat.hklFromQ(qvs[i]));
+  // }
+
+  pw = recalculateUBIndexPeaks(pw);
+
+  double residual = 0;
+
+  for (int i = 0; i < pw->getNumberPeaks(); ++i) {
+    
+    V3D diffHKL = pw->getPeak(i).getHKL()-pw->getPeak(i).getIntHKL();
+
+    for (int j = 0; j < 3; ++j) {
+      out[i * 3 + j] = diffHKL[j];
+    }
+
+     residual += diffHKL.norm();
+  }
+
+  std::ostringstream msgiter;
+  msgiter.precision(4);
+
+  std::string bank = pw->getPeak(0).getBankName();
+
+  double Dy = pw->getPeak(0).getDetPos().Y()-m_pws->getPeak(0).getDetPos().Y();
+
+  msgiter << "residual@iter_" << n_iter << " " << dy << " " << Dy << " " << bank << ": " << residual << "\n";
+  if (bank == std::string("bank52")) {
+    g_log.notice() << msgiter.str();
+  }
   n_iter += 1;
 
   // V3D dtrans = V3D(dx, dy, dz);
@@ -231,6 +415,37 @@ IPeaksWorkspace_sptr SCDCalibratePanels2ObjFunc::rotateInstrumentComponentBy(
   rot_alg->setProperty("Angle", rotAng);
   rot_alg->setProperty("RelativeRotation", true);
   rot_alg->executeAsChildAlg();
+
+  return pws;
+}
+
+/**
+ * @brief update UB matrix embeded in the peakworkspace using lattice constants
+ *        and redo the peak indexation afterwards
+ *
+ * @param pws
+ */
+ IPeaksWorkspace_sptr SCDCalibratePanels2ObjFunc::recalculateUBIndexPeaks(IPeaksWorkspace_sptr &pws) const {
+   
+  // IAlgorithm_sptr calcUB_alg =
+  //     Mantid::API::AlgorithmFactory::Instance().create("FindUBUsingIndexedPeaks", -1);
+  // calcUB_alg->initialize();
+  // calcUB_alg->setChild(true);
+  // calcUB_alg->setLogging(LOGCHILDALG);
+  // calcUB_alg->setProperty("PeaksWorkspace", pws);
+  // calcUB_alg->setProperty("Tolerance", 1.0); // values
+  // calcUB_alg->executeAsChildAlg();
+
+  IAlgorithm_sptr idxpks_alg =
+      Mantid::API::AlgorithmFactory::Instance().create("IndexPeaks", -1);
+  idxpks_alg->initialize();
+  idxpks_alg->setChild(true);
+  idxpks_alg->setLogging(LOGCHILDALG);
+  idxpks_alg->setProperty("PeaksWorkspace", pws);
+  idxpks_alg->setProperty("CommonUBForAll", false); 
+  idxpks_alg->setProperty("RoundHKLs", false); 
+  idxpks_alg->setProperty("Tolerance", 10.0); 
+  idxpks_alg->executeAsChildAlg();
 
   return pws;
 }

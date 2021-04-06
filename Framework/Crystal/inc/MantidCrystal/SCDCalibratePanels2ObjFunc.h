@@ -43,6 +43,8 @@ private:
   mutable Mantid::API::IPeaksWorkspace_sptr m_pws;
   mutable int n_iter;
 
+  mutable std::vector<double> m_tofs;
+
   const bool LOGCHILDALG{false};
   const Mantid::Kernel::V3D UNSET_HKL{0, 0, 0};
   const double PI{3.1415926535897932384626433832795028841971693993751058209};
@@ -57,6 +59,10 @@ private:
   rotateInstrumentComponentBy(double rotVx, double rotVy, double rotVz,
                               double rotAng, std::string componentName,
                               Mantid::API::IPeaksWorkspace_sptr &pws) const;
+  
+  /// Update the UB matrix
+  Mantid::API::IPeaksWorkspace_sptr 
+  recalculateUBIndexPeaks(Mantid::API::IPeaksWorkspace_sptr &pws) const;
 };
 
 } // namespace Crystal

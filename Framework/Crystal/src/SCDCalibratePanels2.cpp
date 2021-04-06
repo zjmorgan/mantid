@@ -458,9 +458,11 @@ void SCDCalibratePanels2::optimizeBanks(IPeaksWorkspace_sptr pws) {
     fitBank_alg->setProperty("InputWorkspace", wsBankCali);
     fitBank_alg->setProperty("CreateOutput", true);
     fitBank_alg->setProperty("Output", "fit");
+    //fitBank_alg->setProperty("Minimizer", "Simplex");
     fitBank_alg->executeAsChildAlg();
 
     //---- cache results
+    std::string status = fitBank_alg->getProperty("OutputStatus");
     double chi2OverDOF = fitBank_alg->getProperty("OutputChi2overDoF");
     ITableWorkspace_sptr rstFitBank =
         fitBank_alg->getProperty("OutputParameters");
@@ -489,7 +491,7 @@ void SCDCalibratePanels2::optimizeBanks(IPeaksWorkspace_sptr pws) {
       double rvz = cos(theta);
       adjustComponent(dx, dy, dz, rvx, rvy, rvz, rotang, bn, pws);
       calilog << "-- Fit " << bn << " results using " << nBankPeaks
-              << " peaks:\n "
+              << " peaks: " << status << "\n "
               << "    d(x,y,z) = (" << dx << "," << dy << "," << dz << ")\n"
               << "    rotang(rx,ry,rz) =" << rotang << "(" << rvx << "," << rvy
               << "," << rvz << ")\n"
@@ -559,8 +561,8 @@ void SCDCalibratePanels2::updateUBMatrix(IPeaksWorkspace_sptr pws) {
       createChildAlgorithm("IndexPeaks", -1, -1, false);
   idxpks_alg->setLogging(LOGCHILDALG);
   idxpks_alg->setProperty("PeaksWorkspace", pws);
-  idxpks_alg->setProperty("RoundHKLs", true); // both are using default
-  idxpks_alg->setProperty("Tolerance", 0.15); // values
+  idxpks_alg->setProperty("RoundHKLs", false); 
+  idxpks_alg->setProperty("Tolerance", 0.15); 
   idxpks_alg->executeAsChildAlg();
 }
 
@@ -652,14 +654,40 @@ SCDCalibratePanels2::getIdealQSampleAsHistogram1D(IPeaksWorkspace_sptr pws) {
   auto ubmatrix = pws->sample().getOrientedLattice().getUB();
   for (int i = 0; i < npeaks; ++i) {
 
-    V3D qv = ubmatrix * pws->getPeak(i).getIntHKL();
-    qv *= 2 * PI;
+    //auto r = pws->getPeak(i).getGoniometerMatrix();
+    
+    //V3D qv = pws->getPeak(i).getQLabFrame();
+
+    //V3D qv = r * ubmatrix * pws->getPeak(i).getIntHKL();
+    //qv *= 2 * PI;
+
+    //double lamda = 4*PI*qv[2]/qv.norm2();
+    //double two_theta = 2*asin(qv[2]/qv.norm());
+    //double az = atan2(qv[1],qv[0]);
+
+    //double az = pws->getPeak(i).getAzimuthal();
+    //double two_theta = pws->getPeak(i).getScattering();
+
+    //V3D qc = V3D(lamda, two_theta, az);
+
+    //V3D hkl = pws->getPeak(i).getIntHKL();
+
+    //auto G = lattice.getG();
+
+    //V3D main = V3D(G[0,0], G[1,1], G[2,2]);
+    //V3D off = V3D(G[1,2], G[0,2], G[0,1]);
+
     // qv = qv / qv.norm();
     for (int j = 0; j < 3; ++j) {
       xvector[i * 3 + j] = i * 3 + j;
-      yvector[i * 3 + j] = qv[j];
+      yvector[i * 3 + j] = 0;
       evector[i * 3 + j] = 1;
     }
+    for (int j = 0; j < 3; ++j) {
+      //yvector[i * 3 + j + 0] = hkl[j];
+      //yvector[i * 9 + j + 3] = main[j];
+      //yvector[i * 9 + j + 6] = off[j];
+    }   
   }
 
   return mws;
@@ -708,6 +736,14 @@ void SCDCalibratePanels2::adjustComponent(double dx, double dy, double dz,
                                           double rvx, double rvy, double rvz,
                                           double rang, std::string cmptName,
                                           IPeaksWorkspace_sptr &pws) {
+
+  std::ostringstream msgiter;
+  msgiter.precision(4);
+
+  std::string bank = pws->getPeak(0).getBankName();
+
+  msgiter << "disp_" << bank << " " << dy << "\n";
+  g_log.notice() << msgiter.str();
 
   // orientation
   IAlgorithm_sptr rot_alg =
