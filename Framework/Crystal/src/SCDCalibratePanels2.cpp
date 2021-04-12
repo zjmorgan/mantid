@@ -643,51 +643,34 @@ SCDCalibratePanels2::getIdealQSampleAsHistogram1D(IPeaksWorkspace_sptr pws) {
       WorkspaceFactory::Instance().create(
           "Workspace2D", // use workspace 2D to mock a histogram
           1,             // one vector
-          3 * npeaks,    // X :: anything is fine
-          3 * npeaks));  // Y :: flattened Q vector
+          9 * npeaks,    // X :: anything is fine
+          9 * npeaks));  // Y :: flattened Q vector
   auto &spectrum = mws->getSpectrum(0);
   auto &xvector = spectrum.mutableX();
   auto &yvector = spectrum.mutableY();
   auto &evector = spectrum.mutableE();
 
   // directly compute qsample from UBmatrix and HKL
-  auto ubmatrix = pws->sample().getOrientedLattice().getUB();
+  // auto ubmatrix = pws->sample().getOrientedLattice().getUB();
+
+  auto G = pws->sample().getOrientedLattice().getG();
+
+  V3D md = V3D(G[0][0],G[1][1],G[2][2]);
+  V3D od = V3D(G[1][2],G[0][2],G[0][1]);
+
   for (int i = 0; i < npeaks; ++i) {
 
-    //auto r = pws->getPeak(i).getGoniometerMatrix();
-    
-    //V3D qv = pws->getPeak(i).getQLabFrame();
-
-    //V3D qv = r * ubmatrix * pws->getPeak(i).getIntHKL();
-    //qv *= 2 * PI;
-
-    //double lamda = 4*PI*qv[2]/qv.norm2();
-    //double two_theta = 2*asin(qv[2]/qv.norm());
-    //double az = atan2(qv[1],qv[0]);
-
-    //double az = pws->getPeak(i).getAzimuthal();
-    //double two_theta = pws->getPeak(i).getScattering();
-
-    //V3D qc = V3D(lamda, two_theta, az);
-
-    //V3D hkl = pws->getPeak(i).getIntHKL();
-
-    //auto G = lattice.getG();
-
-    //V3D main = V3D(G[0,0], G[1,1], G[2,2]);
-    //V3D off = V3D(G[1,2], G[0,2], G[0,1]);
+    V3D HKL = pws->getPeak(i).getIntHKL();
 
     // qv = qv / qv.norm();
     for (int j = 0; j < 3; ++j) {
       xvector[i * 3 + j] = i * 3 + j;
-      yvector[i * 3 + j] = 0;
       evector[i * 3 + j] = 1;
+          
+      yvector[i * 3 + j + 0] = HKL[j];
+      yvector[i * 3 + j + 3] = md[j];
+      yvector[i * 3 + j + 6] = od[j];
     }
-    for (int j = 0; j < 3; ++j) {
-      //yvector[i * 3 + j + 0] = hkl[j];
-      //yvector[i * 9 + j + 3] = main[j];
-      //yvector[i * 9 + j + 6] = off[j];
-    }   
   }
 
   return mws;
@@ -737,14 +720,6 @@ void SCDCalibratePanels2::adjustComponent(double dx, double dy, double dz,
                                           double rang, std::string cmptName,
                                           IPeaksWorkspace_sptr &pws) {
 
-  std::ostringstream msgiter;
-  msgiter.precision(4);
-
-  std::string bank = pws->getPeak(0).getBankName();
-
-  msgiter << "disp_" << bank << " " << dy << "\n";
-  g_log.notice() << msgiter.str();
-
   // orientation
   IAlgorithm_sptr rot_alg =
       createChildAlgorithm("RotateInstrumentComponent", -1, -1, false);
@@ -762,13 +737,14 @@ void SCDCalibratePanels2::adjustComponent(double dx, double dy, double dz,
   IAlgorithm_sptr mv_alg =
       createChildAlgorithm("MoveInstrumentComponent", -1, -1, false);
   mv_alg->setLogging(LOGCHILDALG);
-  mv_alg->setProperty<Workspace_sptr>("Workspace", pws);
+  mv_alg->setProperty("Workspace", pws);
   mv_alg->setProperty("ComponentName", cmptName);
   mv_alg->setProperty("X", dx);
   mv_alg->setProperty("Y", dy);
   mv_alg->setProperty("Z", dz);
   mv_alg->setProperty("RelativePosition", true);
   mv_alg->executeAsChildAlg();
+
 }
 
 /**
