@@ -1,0 +1,294 @@
+# Doxyfile 1.5.4
+
+#---------------------------------------------------------------------------
+# Project related configuration options
+#---------------------------------------------------------------------------
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = Mantid
+PROJECT_NUMBER         =
+OUTPUT_DIRECTORY       = /SNS/users/zgf/.git/mantid/Framework/Doxygen/../../doxygen
+CREATE_SUBDIRS         = YES
+OUTPUT_LANGUAGE        = English
+BRIEF_MEMBER_DESC      = YES
+REPEAT_BRIEF           = YES
+ABBREVIATE_BRIEF       =
+ALWAYS_DETAILED_SEC    = NO
+INLINE_INHERITED_MEMB  = NO
+FULL_PATH_NAMES        = YES
+STRIP_FROM_PATH        =  /SNS/users/zgf/.git/mantid
+STRIP_FROM_INC_PATH    =
+SHORT_NAMES            = NO
+JAVADOC_AUTOBRIEF      = YES
+QT_AUTOBRIEF           = YES
+MULTILINE_CPP_IS_BRIEF = NO
+INHERIT_DOCS           = YES
+SEPARATE_MEMBER_PAGES  = NO
+TAB_SIZE               = 8
+ALIASES                =
+OPTIMIZE_OUTPUT_FOR_C  = NO
+OPTIMIZE_OUTPUT_JAVA   = NO
+BUILTIN_STL_SUPPORT    = YES
+CPP_CLI_SUPPORT        = NO
+SIP_SUPPORT            = NO
+DISTRIBUTE_GROUP_DOC   = NO
+SUBGROUPING            = YES
+TYPEDEF_HIDES_STRUCT   = NO
+#---------------------------------------------------------------------------
+# Build related configuration options
+#---------------------------------------------------------------------------
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_LOCAL_METHODS  = NO
+EXTRACT_ANON_NSPACES   = NO
+HIDE_UNDOC_MEMBERS     = NO
+HIDE_UNDOC_CLASSES     = NO
+HIDE_FRIEND_COMPOUNDS  = NO
+HIDE_IN_BODY_DOCS      = NO
+INTERNAL_DOCS          = NO
+CASE_SENSE_NAMES       = YES
+HIDE_SCOPE_NAMES       = NO
+SHOW_INCLUDE_FILES     = YES
+INLINE_INFO            = YES
+SORT_MEMBER_DOCS       = YES
+SORT_BRIEF_DOCS        = YES
+SORT_BY_SCOPE_NAME     = YES
+GENERATE_TODOLIST      = YES
+GENERATE_TESTLIST      = YES
+GENERATE_BUGLIST       = YES
+GENERATE_DEPRECATEDLIST= YES
+ENABLED_SECTIONS       =
+MAX_INITIALIZER_LINES  = 30
+SHOW_USED_FILES        = YES
+SHOW_FILES             = YES
+FILE_VERSION_FILTER    =
+#---------------------------------------------------------------------------
+# configuration options related to warning and progress messages
+#---------------------------------------------------------------------------
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
+WARN_FORMAT            = "$file:$line: $text "
+WARN_LOGFILE           =
+#---------------------------------------------------------------------------
+# configuration options related to the input files
+#---------------------------------------------------------------------------
+
+INPUT = /SNS/users/zgf/.git/mantid/Framework/Doxygen/../Algorithms/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../Algorithms/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../API/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../API/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../Crystal/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../Crystal/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../CurveFitting/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../CurveFitting/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../DataHandling/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../DataHandling/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../DataObjects/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../DataObjects/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../Geometry/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../Geometry/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../ICat/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../ICat/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../Kernel/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../Kernel/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../MDAlgorithms/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../MDAlgorithms/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../Nexus/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../Nexus/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../PythonInterface/core/inc/MantidPythonInterface/core \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../PythonInterface/mantid/kernel/inc/MantidPythonInterface/kernel \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../PythonInterface/mantid/api/inc/MantidPythonInterface/api \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../PythonInterface/core/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../PythonInterface/mantid/kernel/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../PythonInterface/mantid/geometry/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../PythonInterface/mantid/api/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../TestHelpers/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../TestHelpers/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../WorkflowAlgorithms/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../WorkflowAlgorithms/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../../qt/widgets/common/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../../qt/widgets/common/src \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../../qt/widgets/plugins/algorithm_dialogs/inc \
+        /SNS/users/zgf/.git/mantid/Framework/Doxygen/../../qt/widgets/plugins/algorithm_dialogs/src
+
+
+INPUT_ENCODING         = UTF-8
+FILE_PATTERNS          =
+RECURSIVE              = YES
+
+#Note: The NeXus API docs are there temporarily and cause lots of (unnecessary) doxygen warnings.
+# Third party library ANN in Kernel is not doxygenised.
+# Third party library span.hpp has doxygen warnings
+EXCLUDE                = /SNS/users/zgf/.git/mantid/Framework/Doxygen/../ICat/src/GSoapGenerated \
+                         /SNS/users/zgf/.git/mantid/Framework/Doxygen/../ICat/src/GSoap \
+                         /SNS/users/zgf/.git/mantid/Framework/Doxygen/../ICat/src/GSoap.cpp \
+                         /SNS/users/zgf/.git/mantid/Framework/Doxygen/../ICat/inc/MantidICat/GSoapGenerated \
+                         /SNS/users/zgf/.git/mantid/Framework/Doxygen/../ICat/inc/MantidICat/GSoap \
+                         /SNS/users/zgf/.git/mantid/Framework/Doxygen/../MDEvents/src/generate_mdevent_declarations.py \
+                         /SNS/users/zgf/.git/mantid/Framework/Doxygen/../Kernel/inc/MantidKernel/ANN \
+                         /SNS/users/zgf/.git/mantid/Framework/Doxygen/../Kernel/src/ANN \
+                         /SNS/users/zgf/.git/mantid/Framework/Doxygen/../Kernel/src/ANN_complete.cpp \
+                         /SNS/users/zgf/.git/mantid/Framework/Doxygen/../../qt/widgets/common/inc/MantidQtWidgets/Common/QtPropertyBrowser \
+                         /SNS/users/zgf/.git/mantid/Framework/Doxygen/../../qt/widgets/common/src/QtPropertyBrowser \
+                         /SNS/users/zgf/.git/mantid/Framework/Doxygen/../Kernel/inc/MantidKernel/span.hpp
+
+EXCLUDE_SYMLINKS       = NO
+EXCLUDE_PATTERNS       =
+EXCLUDE_SYMBOLS        =
+EXAMPLE_PATH           =
+EXAMPLE_PATTERNS       =
+EXAMPLE_RECURSIVE      = NO
+IMAGE_PATH             = /SNS/users/zgf/.git/mantid/Framework/Doxygen/../../doxygen/html/
+INPUT_FILTER           =
+FILTER_PATTERNS        =
+FILTER_SOURCE_FILES    = NO
+#---------------------------------------------------------------------------
+# configuration options related to source browsing
+#---------------------------------------------------------------------------
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = YES
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+REFERENCES_LINK_SOURCE = YES
+USE_HTAGS              = NO
+VERBATIM_HEADERS       = YES
+#---------------------------------------------------------------------------
+# configuration options related to the alphabetical class index
+#---------------------------------------------------------------------------
+ALPHABETICAL_INDEX     = YES
+COLS_IN_ALPHA_INDEX    = 5
+IGNORE_PREFIX          =
+#---------------------------------------------------------------------------
+# configuration options related to the HTML output
+#---------------------------------------------------------------------------
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+HTML_HEADER            = /SNS/users/zgf/.git/mantid/Framework/Doxygen/doxy_header.html
+HTML_FOOTER            =
+HTML_STYLESHEET        =
+HTML_TIMESTAMP         = YES
+GENERATE_HTMLHELP      = NO
+HTML_DYNAMIC_SECTIONS  = NO
+CHM_FILE               =
+HHC_LOCATION           =
+GENERATE_CHI           = NO
+BINARY_TOC             = NO
+TOC_EXPAND             = NO
+DISABLE_INDEX          = NO
+ENUM_VALUES_PER_LINE   = 4
+GENERATE_TREEVIEW      = NO
+TREEVIEW_WIDTH         = 250
+#---------------------------------------------------------------------------
+# configuration options related to the LaTeX output
+#---------------------------------------------------------------------------
+GENERATE_LATEX         = NO
+LATEX_OUTPUT           = latex
+LATEX_CMD_NAME         = latex
+MAKEINDEX_CMD_NAME     = makeindex
+COMPACT_LATEX          = NO
+PAPER_TYPE             = a4wide
+EXTRA_PACKAGES         =
+LATEX_HEADER           =
+PDF_HYPERLINKS         = NO
+USE_PDFLATEX           = NO
+LATEX_BATCHMODE        = NO
+LATEX_HIDE_INDICES     = NO
+#---------------------------------------------------------------------------
+# configuration options related to the RTF output
+#---------------------------------------------------------------------------
+GENERATE_RTF           = NO
+RTF_OUTPUT             = rtf
+COMPACT_RTF            = NO
+RTF_HYPERLINKS         = NO
+RTF_STYLESHEET_FILE    =
+RTF_EXTENSIONS_FILE    =
+#---------------------------------------------------------------------------
+# configuration options related to the man page output
+#---------------------------------------------------------------------------
+GENERATE_MAN           = NO
+MAN_OUTPUT             = man
+MAN_EXTENSION          = .3
+MAN_LINKS              = NO
+#---------------------------------------------------------------------------
+# configuration options related to the XML output
+#---------------------------------------------------------------------------
+GENERATE_XML           = NO
+XML_OUTPUT             = xml
+XML_PROGRAMLISTING     = YES
+#---------------------------------------------------------------------------
+# configuration options for the AutoGen Definitions output
+#---------------------------------------------------------------------------
+GENERATE_AUTOGEN_DEF   = NO
+#---------------------------------------------------------------------------
+# configuration options related to the Perl module output
+#---------------------------------------------------------------------------
+GENERATE_PERLMOD       = NO
+PERLMOD_LATEX          = NO
+PERLMOD_PRETTY         = YES
+PERLMOD_MAKEVAR_PREFIX =
+#---------------------------------------------------------------------------
+# Configuration options related to the qtcreator output
+#---------------------------------------------------------------------------
+GENERATE_QHP           = YES
+QCH_FILE               = "/SNS/users/zgf/.git/mantid/Framework/Doxygen/../../doxygen/mantid.qch"
+QHP_NAMESPACE          = "mantidproject.org"
+QHP_VIRTUAL_FOLDER     = "mantidQtHelp"
+QHG_LOCATION           = /bin/qhelpgenerator
+#---------------------------------------------------------------------------
+# Configuration options related to the preprocessor
+#---------------------------------------------------------------------------
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+SEARCH_INCLUDES        = YES
+INCLUDE_PATH           =
+INCLUDE_FILE_PATTERNS  =
+PREDEFINED             = "TMDE(decl)=decl" \
+                         "INSTANTIATE(TYPE)=template MANTID_KERNEL_DLL Statistics getStatistics<TYPE> (const vector<TYPE> &, const bool);\template MANTID_KERNEL_DLL std::vector<double> getZscore<TYPE> (const vector<TYPE> &, const bool);\template MANTID_KERNEL_DLL std::vector<double> getModifiedZscore<TYPE> (const vector<TYPE> &, const bool);"
+EXPAND_AS_DEFINED      =
+SKIP_FUNCTION_MACROS   = YES
+#---------------------------------------------------------------------------
+# Configuration::additions related to external references
+#---------------------------------------------------------------------------
+TAGFILES               =
+GENERATE_TAGFILE       =
+ALLEXTERNALS           = NO
+EXTERNAL_GROUPS        = YES
+PERL_PATH              = /usr/bin/perl
+#---------------------------------------------------------------------------
+# Configuration options related to the dot tool
+#---------------------------------------------------------------------------
+CLASS_DIAGRAMS         = YES
+MSCGEN_PATH            =
+HIDE_UNDOC_RELATIONS   = YES
+HAVE_DOT               = NO
+CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = YES
+GROUP_GRAPHS           = YES
+UML_LOOK               = YES
+TEMPLATE_RELATIONS     = YES
+INCLUDE_GRAPH          = YES
+INCLUDED_BY_GRAPH      = YES
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+GRAPHICAL_HIERARCHY    = NO # YES
+DIRECTORY_GRAPH        = YES
+DOT_IMAGE_FORMAT       = png
+DOT_PATH               = /bin
+DOTFILE_DIRS           =
+DOT_GRAPH_MAX_NODES    = 50
+MAX_DOT_GRAPH_DEPTH    = 2
+DOT_TRANSPARENT        = NO
+DOT_MULTI_TARGETS      = NO
+GENERATE_LEGEND        = YES
+DOT_CLEANUP            = YES
+#---------------------------------------------------------------------------
+# Configuration::additions related to the search engine
+#---------------------------------------------------------------------------
+SEARCHENGINE           = YES

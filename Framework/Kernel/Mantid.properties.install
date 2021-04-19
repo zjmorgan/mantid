@@ -1,0 +1,299 @@
+# File: Mantid Properties
+# Purpose: This file contains the basic configuration for Mantid.
+# WARNING: This file is not intended to be edited by users.
+#          If you wish to override any setting in this file
+#          Simply copy the entry into the Mantid.user.Properties file
+#          and set the value you desire there.  Any settings in the user.properties
+#          file will override those set in this file.
+#
+#          This File will be overwritten with each new version of Mantid, however
+#          we will never alter your user.properties file so settings there are safe.
+
+# Set a default facility
+default.facility =
+
+# Set a default instrument
+default.instrument =
+
+# This flag controls the convention for converting to Q.  Default is ki-kf
+# Change to Crystallography for kf-ki
+Q.convention = Inelastic
+
+# Set of PyQt interfaces to add to the Interfaces menu, separated by a space.  Interfaces are seperated from their respective categories by a "/".
+
+mantidqt.python_interfaces = ILL/Drill.py Direct/DGS_Reduction.py Direct/DGSPlanner.py Direct/PyChop.py Direct/MSlice.py SANS/ORNL_SANS.py Utility/TofConverter.py Diffraction/Engineering_Diffraction.py Diffraction/Powder_Diffraction_Reduction.py Utility/FilterEvents.py Diffraction/HFIR_4Circle_Reduction.py Utility/QECoverage.py SANS/ISIS_SANS.py Muon/Frequency_Domain_Analysis.py Muon/Elemental_Analysis.py Muon/Frequency_Domain_Analysis_Old.py Muon/Muon_Analysis.py General/Sample_Transmission_Calculator.py
+
+mantidqt.python_interfaces_io_registry = Engineering_Diffraction_register.py
+
+# Directory containing the above startup scripts
+mantidqt.python_interfaces_directory = ../scripts
+
+# Where to find mantid framework plugins
+framework.plugins.directory = ../plugins
+
+# Libraries to skip. The strings are searched for when loading libraries so they don't need to be exact
+framework.plugins.exclude = Qt4;Qt5
+
+# Where to find Mantid Qt plugin libraries
+mantidqt.plugins.directory = ../plugins/qt%V
+
+# Where to find the python plugin manifest file
+python.plugins.manifest = ../plugins/python/python-plugin-manifest.txt
+
+# Where to load instrument definition files from
+instrumentDefinition.directory = ../instrument
+# Controls whether Mantid Workbench will use system notifications for important messages (On/Off)
+Notifications.Enabled = On
+
+# Whether to check for updated instrument definitions on startup of Mantid
+UpdateInstrumentDefinitions.OnStartup = 1
+UpdateInstrumentDefinitions.URL = https://api.github.com/repos/mantidproject/mantid/contents/instrument
+
+# Whether to check for newer mantid versions on startup
+CheckMantidVersion.OnStartup = 1
+CheckMantidVersion.GitHubReleaseURL = https://api.github.com/repos/mantidproject/mantid/releases/latest
+CheckMantidVersion.DownloadURL = https://download.mantidproject.org
+
+# Whether to report usage statistics back to central server
+usagereports.enabled = 1
+errorreports.rooturl = https://errorreports.mantidproject.org
+usagereports.rooturl = https://reports.mantidproject.org
+
+# Where to load Grouping files (that are shipped with Mantid) from
+groupingFiles.directory = ../instrument/Grouping
+
+# Where to load Mask files (that are shipped with Mantid) from
+maskFiles.directory = ../instrument/masks
+
+# Where to load colormap files (.map)
+colormaps.directory = ../colormaps
+
+# Additional directories for Python scripts. These are added to the Python path by the Python API.
+# This key is NOT recursive so sub-directories must be added in addition
+pythonscripts.directories =
+
+# Setting this to 1 will allow python algorithms to be reloaded before execution.
+pythonalgorithms.refresh.allowed = 0
+
+# A semi-colon(;) separated list of directories to use to search for data
+# Use forward slash / for all paths
+datasearch.directories = 
+
+# Root of html documentation (kept as unix-style path)
+docs.html.root = ../share/doc/html
+
+# Setting this to On enables searching the facilitie's archive automatically
+datasearch.searcharchive = Off
+
+# A default directory to use for saving files
+# Use forward slash / for all paths
+defaultsave.directory =
+
+# ICat download directory
+icatDownload.directory =
+# ICat mount point. Directory where archive is mounted. See Facility.xml filelocation.
+icatDownload.mountPoint =
+
+# Defines the maximum number of cores to use for OpenMP
+# For machine default set to 0
+MultiThreaded.MaxCores = 0
+
+# Defines the area (in FWHM) on both sides of the peak centre within which peaks are calculated.
+# Outside this area peak functions return zero.
+curvefitting.defaultPeak=Gaussian
+curvefitting.findPeaksFWHM=7
+curvefitting.findPeaksTolerance=4
+# Functions excluded from use by the guis
+curvefitting.guiExclude=CrystalFieldFunction;CrystalFieldHeatCapacity;CrystalFieldMagnetisation;CrystalFieldMoment;CrystalFieldMultiSpectrum;CrystalFieldPeaks;CrystalFieldSpectrum;CrystalFieldSusceptibility;PeakParameterFunction;
+
+#Defines whether or not the sliceViewer will show NonOrthogonal view as a default
+sliceviewer.nonorthogonal=false
+
+# Network Timeouts (in seconds for various uses within Mantid)
+network.default.timeout = 30
+network.scriptrepo.timeout = 5
+# Allows the system proxy to be overridden (leave commented out to use the system proxy)
+# proxy.host =
+# proxy.port = 8080
+# This is to force https proxy requests to use the http proxy (current necessary)
+proxy.httpsTargetUrl = http://www.mantidproject.org
+# This timeout is the maximum duration in seconds we will wait on a request to the ISIS DAE (live data)
+# it might need to be increased if you are trying to download histogram data from a very large instrument
+ISISDAE.Timeout = 120
+
+# Defines the precision of h, k, and l when output in peak workspace table
+PeakColumn.hklPrec=2
+
+# Do not show 'invisible' workspaces
+MantidOptions.InvisibleWorkspaces=0
+
+# This flag controls the way the "unwrapped" instrument view is rendered.
+# Change to Off to disable OpenGL and use normal windows graphics.
+MantidOptions.InstrumentView.UseOpenGL = On
+
+# Controls the default normalization mode for graph plotting
+# Allowed values are:
+#   On: Normalize to the bin width for 1d and 2d plots
+#   Off: Do not normalize
+graph1d.autodistribution = On
+
+# logging configuration
+# root level message filter (This sets a minimal level possible for any channel)
+logging.loggers.root.level = notice
+
+# splitting the messages to many logging channels
+logging.loggers.root.channel.class = SplitterChannel
+logging.loggers.root.channel.channel1 = consoleChannel
+
+# output to the console - primarily for console based apps
+logging.channels.consoleChannel.class = StdoutChannel
+logging.channels.consoleChannel.formatter = f1
+
+# global log formatting
+logging.formatters.f1.class = PatternFormatter
+logging.formatters.f1.pattern = %s-[%p] %t
+logging.formatters.f1.times = local
+
+workspace.sendto.SansView.arguments=[file]
+workspace.sendto.SansView.saveusing=SaveCanSAS1D
+workspace.sendto.SansView.target=%SANSVIEWPATH%/SansView.exe
+workspace.sendto.SansView.visible=Yes
+workspace.sendto.name.SansView=0
+
+# Change this property to On to make Mantid case sensitive (ignored on Windows as file searching is always case insensitve)
+filefinder.casesensitive=On
+
+# Control which geometry the Instrument View window displays, valid values
+# are "Default", "Neutronic" or "Physical".
+instrument.view.geometry=Default
+
+# Disabling multifile loading will allow users to load files with "," or "+"
+# in their path, but at the cost of no longer being able to load multiple
+# files with a single call to Load.
+loading.multifile=On
+
+# Limits the maximum number of files Mantid will attempt to load as part of a range.
+# Set to a very high number to disable, however this limit is in place to protect
+# you and your computer from simple formatting mistakes
+# By default it is facility dependent, and can be specified in Facilities.xml
+# If not specified there for a given facility, it is assumed 100.
+# If overwritten by the user, the user defined value takes priority over facility dependent defaults.
+loading.multifilelimit =
+
+# Hide algorithms that use a Property Manager by default.
+algorithms.categories.hidden=Workflow\\Inelastic\\UsesPropertyManager;Workflow\\SANS\\UsesPropertyManager;DataHandling\\LiveData\\Support;Deprecated;Utility\\Development;Remote
+
+# All interface categories are shown by default.
+interfaces.categories.hidden =
+
+# ScriptRepository Properties:
+
+# Url for the WebServer that support the upload of the files that the users want to share
+UploaderWebServer = https://upload.mantidproject.org/scriptrepository
+# Local system path for the script repository.
+ScriptLocalRepository =
+# Base Url for the remote script repository. Not necessarily accessible, it is used to construct longer URLs
+ScriptRepository = https://download.mantidproject.org/scriptrepository/
+# Pattern given to ScriptRepository that is used to hide entries from repository to the users. It is a csv string separated with ';'
+ScriptRepositoryIgnore = *pyc;
+
+# The ability to send a job to a cluster form the reduction UIs is turned off. Set it to 'On' to enable it.
+cluster.submission=Off
+
+# Used to stop a catalog asynchronous algorithm after the timeout period
+catalog.timeout.value=30
+
+# Indicates if project recovery should automatically save in the background
+projectRecovery.enabled=true
+
+# The delay in seconds between triggering a project recovery save
+projectRecovery.secondsBetween = 60
+
+# The number of checkpoints to retain in the recovery folder
+projectRecovery.numberOfCheckpoints = 5
+
+# The size of the project before a warning is given in bytes.
+# 10 GB = 10737418240 bytes
+projectSaving.warningSize = 10737418240
+
+# Whether to show titles on plots
+plots.ShowTitle = On
+
+# Whether to show the legend by default
+plots.ShowLegend = On
+
+# The default font for matplotlib plots
+plots.font=
+
+# The default scale on 1d plots. Options are Linear or Log
+plots.xAxesScale = Linear
+plots.yAxesScale = Linear
+
+# The default width of the lines for the axes
+plots.axesLineWidth = 1
+
+# Whether to enable the grid by default
+plots.enableGrid = Off
+
+# Whether to show minor ticks on plots
+plots.ShowMinorTicks = Off
+
+# Whether to show minor gridlines on plots
+plots.ShowMinorGridlines = Off
+
+# Whether to show ticks and tick labels on each side of the plot
+plots.showTicksLeft = On
+plots.showTicksBottom = On
+plots.showTicksRight = Off
+plots.showTicksTop = Off
+plots.showLabelsLeft = On
+plots.showLabelsBottom = On
+plots.showLabelsRight = Off
+plots.showLabelsTop = Off
+
+# The length, width, and direction of major and minor ticks
+plots.ticks.major.length = 6
+plots.ticks.major.width = 1
+plots.ticks.major.direction = Out
+plots.ticks.minor.length = 3
+plots.ticks.minor.width = 1
+plots.ticks.minor.direction = Out
+
+# Default Line style on 1d plots. Options are solid, dashed, dotted, dashdot
+plots.line.Style = solid
+
+# Default Draw style on 1d plots. Options are default, steps, steps-pre, steps-mid, steps-post
+plots.line.DrawStyle = default
+
+# Default Line width on 1d plots
+plots.line.Width = 1.5
+
+# Default marker style on 1d plots
+plots.marker.Style = None
+
+# Default maker size on 1d plots
+plots.marker.Size = 6
+
+# Default cap size on error bars in 1d plots
+plots.errorbar.Capsize = 0.0
+
+# Default cap thickness on error bars in 1d plots
+plots.errorbar.CapThickness = 1.0
+
+# Default number of error bars for every data point in 1d plots
+plots.errorbar.errorEvery = 1
+
+# Default width of error bars in 1d plots
+plots.errorbar.Width = 1.0
+
+# Default legend location
+plots.legend.Location = best
+
+# Default legend size
+plots.legend.FontSize = 8
+
+# Default colormap for image plots
+plots.images.Colormap = viridis
+
+# Default colorbar scale for image plots
+plots.images.ColorBarScale = Linear

@@ -268,8 +268,8 @@ void SCDCalibratePanels2::exec() {
 
     updateUBMatrix(pwsRuni);
 
-    m_UBMatrix.push_back(pwsRuni->sample().getOrientedLattice().getUB());
-    m_UBRun.push_back(runnumber);
+    m_UMatrix.push_back(pwsRuni->sample().getOrientedLattice().getU());
+    m_URun.push_back(runnumber);
   }
 
   // STEP_2: optimize T0,L1,L2,etc.
@@ -337,7 +337,7 @@ void SCDCalibratePanels2::optimizeT0(IPeaksWorkspace_sptr pws) {
   MatrixWorkspace_sptr t0ws = getIdealQSampleAsHistogram1D(pws);
 
   auto objf = std::make_shared<SCDCalibratePanels2ObjFunc>();
-  objf->setPeakWorkspace(pws, "none", m_UBMatrix, m_UBRun);
+  objf->setPeakWorkspace(pws, "none", m_UMatrix, m_URun);
   fitT0_alg->setProperty("Function",
                          std::dynamic_pointer_cast<IFunction>(objf));
 
@@ -382,7 +382,7 @@ void SCDCalibratePanels2::optimizeL1(IPeaksWorkspace_sptr pws) {
   // fit algorithm for the optimization of L1
   IAlgorithm_sptr fitL1_alg = createChildAlgorithm("Fit", -1, -1, false);
   auto objf = std::make_shared<SCDCalibratePanels2ObjFunc>();
-  objf->setPeakWorkspace(pws, "moderator", m_UBMatrix, m_UBRun);
+  objf->setPeakWorkspace(pws, "moderator", m_UMatrix, m_URun);
   fitL1_alg->setProperty("Function",
                          std::dynamic_pointer_cast<IFunction>(objf));
 
@@ -452,7 +452,7 @@ void SCDCalibratePanels2::optimizeBanks(IPeaksWorkspace_sptr pws) {
     IAlgorithm_sptr fitBank_alg = createChildAlgorithm("Fit", -1, -1, false);
     //---- setup obj fun def
     auto objf = std::make_shared<SCDCalibratePanels2ObjFunc>();
-    objf->setPeakWorkspace(pwsBanki, bankname, m_UBMatrix, m_UBRun);
+    objf->setPeakWorkspace(pwsBanki, bankname, m_UMatrix, m_URun);
     fitBank_alg->setProperty("Function",
                              std::dynamic_pointer_cast<IFunction>(objf));
 

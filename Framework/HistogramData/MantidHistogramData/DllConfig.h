@@ -1,0 +1,51 @@
+
+#ifndef MANTID_HISTOGRAMDATA_DLL_H
+#define MANTID_HISTOGRAMDATA_DLL_H
+
+#ifdef MANTID_HISTOGRAMDATA_STATIC_DEFINE
+#  define MANTID_HISTOGRAMDATA_DLL
+#  define MANTID_HISTOGRAMDATA_NO_EXPORT
+#else
+#  ifndef MANTID_HISTOGRAMDATA_DLL
+#    ifdef HistogramData_EXPORTS
+        /* We are building this library */
+#      define MANTID_HISTOGRAMDATA_DLL __attribute__((visibility("default")))
+#    else
+        /* We are using this library */
+#      define MANTID_HISTOGRAMDATA_DLL __attribute__((visibility("default")))
+#    endif
+#  endif
+
+#  ifndef MANTID_HISTOGRAMDATA_NO_EXPORT
+#    define MANTID_HISTOGRAMDATA_NO_EXPORT __attribute__((visibility("hidden")))
+#  endif
+#endif
+
+#ifndef MANTID_HISTOGRAMDATA_DEPRECATED
+#  define MANTID_HISTOGRAMDATA_DEPRECATED __attribute__ ((__deprecated__))
+#endif
+
+#ifndef MANTID_HISTOGRAMDATA_DEPRECATED_EXPORT
+#  define MANTID_HISTOGRAMDATA_DEPRECATED_EXPORT MANTID_HISTOGRAMDATA_DLL MANTID_HISTOGRAMDATA_DEPRECATED
+#endif
+
+#ifndef MANTID_HISTOGRAMDATA_DEPRECATED_NO_EXPORT
+#  define MANTID_HISTOGRAMDATA_DEPRECATED_NO_EXPORT MANTID_HISTOGRAMDATA_NO_EXPORT MANTID_HISTOGRAMDATA_DEPRECATED
+#endif
+
+#if 0 /* DEFINE_NO_DEPRECATED */
+#  ifndef MANTID_HISTOGRAMDATA_NO_DEPRECATED
+#    define MANTID_HISTOGRAMDATA_NO_DEPRECATED
+#  endif
+#endif
+
+#ifndef UNUSED_ARG
+    #define UNUSED_ARG(x) (void) x;
+#endif
+
+#ifndef HISTOGRAMDATA_DEPRECATED
+    #define HISTOGRAMDATA_DEPRECATED(func) MANTID_HISTOGRAMDATA_DEPRECATED func
+#endif
+
+
+#endif

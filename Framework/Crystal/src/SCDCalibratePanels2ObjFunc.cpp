@@ -76,8 +76,8 @@ void SCDCalibratePanels2ObjFunc::setPeakWorkspace(
   }
 
   for (std::size_t i = 0; i < UBRun.size(); ++i){
-    m_UBMatrix.push_back(UBMatrix[i]);
-    m_UBRun.push_back(UBRun[i]);
+    m_UMatrix.push_back(UBMatrix[i]);
+    m_URun.push_back(UBRun[i]);
   }
 
 }
@@ -178,19 +178,28 @@ void SCDCalibratePanels2ObjFunc::function1D(double *out,
     // residual += delta_qv.norm2();
   }
 
+  auto B_pws = pws->sample().getOrientedLattice().getB();
+
   pw = recalculateUBIndexPeaks(pw);
 
-  auto B = pw->sample().getOrientedLattice().getB();
-
-  V3D md = V3D(B[0][0],B[1][1],B[2][2]);
-  V3D od = V3D(B[1][2],B[0][2],B[0][1]);
+  auto UB = pw->sample().getOrientedLattice().getUB();
 
   for (int i = 0; i < pw->getNumberPeaks(); ++i) {
     
     //V3D HKL = pw->getPeak(i).getHKL();
 
-    auto ind = std::distance(m_UBRun.begin(), std::find(m_UBRun.begin(), m_UBRun.end(), pw->getPeak(i).getRunNumber()));
-    auto UB_inv = m_UBMatrix[ind];
+    auto ind = std::distance(m_URun.begin(), std::find(m_URun.begin(), m_URun.end(), pw->getPeak(i).getRunNumber()));
+    
+    auto U = m_UMatrix[ind];
+    auto U_inv = m_UMatrix[ind];
+    U_inv.Invert();
+
+    auto B = U_inv*UB;
+
+    V3D md = V3D(B[0][0],B[1][1],B[2][2]);
+    V3D od = V3D(B[1][2],B[0][2],B[0][1]);
+
+    auto UB_inv = U*B;
     UB_inv.Invert();
 
     V3D HKL = UB_inv * pw->getPeak(i).getQSampleFrame() / (2 * M_PI);

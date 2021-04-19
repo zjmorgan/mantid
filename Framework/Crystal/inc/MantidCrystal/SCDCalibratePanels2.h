@@ -147,8 +147,8 @@ private:
   const int MINIMUM_PEAKS_PER_BANK{6};
   const double PI{3.1415926535897932384626433832795028841971693993751058209};
 
-  std::vector<Mantid::Kernel::Matrix<double>> m_UBMatrix;
-  std::vector<int> m_UBRun;
+  std::vector<Mantid::Kernel::Matrix<double>> m_UMatrix;
+  std::vector<int> m_URun;
 
   // Column names and types
   const std::string calibrationTableColumnNames[8] = {

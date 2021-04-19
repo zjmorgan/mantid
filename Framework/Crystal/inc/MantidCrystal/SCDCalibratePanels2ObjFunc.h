@@ -47,8 +47,8 @@ private:
 
   mutable std::vector<double> m_tofs;
 
-  mutable std::vector<Mantid::Kernel::Matrix<double>> m_UBMatrix;
-  mutable std::vector<int> m_UBRun;
+  mutable std::vector<Mantid::Kernel::Matrix<double>> m_UMatrix;
+  mutable std::vector<int> m_URun;
 
   const bool LOGCHILDALG{false};
   const Mantid::Kernel::V3D UNSET_HKL{0, 0, 0};
