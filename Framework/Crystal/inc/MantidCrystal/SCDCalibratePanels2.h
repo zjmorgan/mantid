@@ -78,6 +78,9 @@ private:
   /// Private function for getting names of banks to be calibrated
   void getBankNames(Mantid::API::IPeaksWorkspace_sptr pws);
 
+  /// Private function for getting run numbers to be calibrated
+  void getRunNumbers(Mantid::API::IPeaksWorkspace_sptr pws);
+
   /// Private function for calibrating T0
   void optimizeT0(Mantid::API::IPeaksWorkspace_sptr pws);
 
@@ -92,6 +95,11 @@ private:
   selectPeaksByBankName(Mantid::API::IPeaksWorkspace_sptr pws,
                         const std::string bankname,
                         const std::string outputwsn);
+
+  Mantid::API::IPeaksWorkspace_sptr
+  selectPeaksByRunNumber(Mantid::API::IPeaksWorkspace_sptr pws,
+                         const int runnumber,
+                         const std::string outputwsn);
 
   /// Helper function that calculates the ideal qSample based on
   /// integer HKL
@@ -139,6 +147,9 @@ private:
   const int MINIMUM_PEAKS_PER_BANK{6};
   const double PI{3.1415926535897932384626433832795028841971693993751058209};
 
+  std::vector<Mantid::Kernel::Matrix<double>> m_UBMatrix;
+  std::vector<int> m_UBRun;
+
   // Column names and types
   const std::string calibrationTableColumnNames[8] = {
       "ComponentName",    "Xposition",        "Yposition",
@@ -149,6 +160,7 @@ private:
       "double", "double", "double", "double"};
 
   boost::container::flat_set<std::string> m_BankNames;
+  boost::container::flat_set<int> m_RunNumbers;
   Mantid::API::ITableWorkspace_sptr mCaliTable;
 };
 

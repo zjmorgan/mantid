@@ -256,6 +256,21 @@ void SCDCalibratePanels2::exec() {
   // STEP_1: preparation
   // get names of banks that can be calibrated
   getBankNames(m_pws);
+  getRunNumbers(m_pws);
+
+  for (int i = 0; i < static_cast<int>(m_RunNumbers.size()); ++i) {
+    // prepare local copies to work with
+    const int runnumber = *std::next(m_RunNumbers.begin(), i);
+    const std::string pwsRuniName = "_pws_" + std::to_string(runnumber);
+
+    IPeaksWorkspace_sptr pwsRuni =
+        selectPeaksByRunNumber(m_pws, runnumber, pwsRuniName);
+
+    updateUBMatrix(pwsRuni);
+
+    m_UBMatrix.push_back(pwsRuni->sample().getOrientedLattice().getUB());
+    m_UBRun.push_back(runnumber);
+  }
 
   // STEP_2: optimize T0,L1,L2,etc.
   if (calibrateT0) {
@@ -322,7 +337,7 @@ void SCDCalibratePanels2::optimizeT0(IPeaksWorkspace_sptr pws) {
   MatrixWorkspace_sptr t0ws = getIdealQSampleAsHistogram1D(pws);
 
   auto objf = std::make_shared<SCDCalibratePanels2ObjFunc>();
-  objf->setPeakWorkspace(pws, "none");
+  objf->setPeakWorkspace(pws, "none", m_UBMatrix, m_UBRun);
   fitT0_alg->setProperty("Function",
                          std::dynamic_pointer_cast<IFunction>(objf));
 
@@ -367,7 +382,7 @@ void SCDCalibratePanels2::optimizeL1(IPeaksWorkspace_sptr pws) {
   // fit algorithm for the optimization of L1
   IAlgorithm_sptr fitL1_alg = createChildAlgorithm("Fit", -1, -1, false);
   auto objf = std::make_shared<SCDCalibratePanels2ObjFunc>();
-  objf->setPeakWorkspace(pws, "moderator");
+  objf->setPeakWorkspace(pws, "moderator", m_UBMatrix, m_UBRun);
   fitL1_alg->setProperty("Function",
                          std::dynamic_pointer_cast<IFunction>(objf));
 
@@ -437,7 +452,7 @@ void SCDCalibratePanels2::optimizeBanks(IPeaksWorkspace_sptr pws) {
     IAlgorithm_sptr fitBank_alg = createChildAlgorithm("Fit", -1, -1, false);
     //---- setup obj fun def
     auto objf = std::make_shared<SCDCalibratePanels2ObjFunc>();
-    objf->setPeakWorkspace(pwsBanki, bankname);
+    objf->setPeakWorkspace(pwsBanki, bankname, m_UBMatrix, m_UBRun);
     fitBank_alg->setProperty("Function",
                              std::dynamic_pointer_cast<IFunction>(objf));
 
@@ -544,6 +559,14 @@ void SCDCalibratePanels2::parseLatticeConstant(IPeaksWorkspace_sptr pws) {
  * @param pws
  */
 void SCDCalibratePanels2::updateUBMatrix(IPeaksWorkspace_sptr pws) {
+
+  IAlgorithm_sptr findUB_alg =
+      createChildAlgorithm("FindUBUsingIndexedPeaks", -1, -1, false);
+  findUB_alg->setLogging(LOGCHILDALG);
+  findUB_alg->setProperty("PeaksWorkspace", pws);
+  findUB_alg->setProperty("Tolerance", 1.0); // values
+  findUB_alg->executeAsChildAlg();
+
   IAlgorithm_sptr calcUB_alg =
       createChildAlgorithm("CalculateUMatrix", -1, -1, false);
   calcUB_alg->setLogging(LOGCHILDALG);
@@ -556,13 +579,13 @@ void SCDCalibratePanels2::updateUBMatrix(IPeaksWorkspace_sptr pws) {
   calcUB_alg->setProperty("gamma", m_gamma);
   calcUB_alg->executeAsChildAlg();
 
-  // Since UB is updated, we need to redo the indexation
+  //Since UB is updated, we need to redo the indexation
   IAlgorithm_sptr idxpks_alg =
       createChildAlgorithm("IndexPeaks", -1, -1, false);
   idxpks_alg->setLogging(LOGCHILDALG);
   idxpks_alg->setProperty("PeaksWorkspace", pws);
   idxpks_alg->setProperty("RoundHKLs", false); 
-  idxpks_alg->setProperty("Tolerance", 0.15); 
+  idxpks_alg->setProperty("Tolerance", 1.0); 
   idxpks_alg->executeAsChildAlg();
 }
 
@@ -603,6 +626,20 @@ void SCDCalibratePanels2::getBankNames(IPeaksWorkspace_sptr pws) {
 }
 
 /**
+ * @brief Gather run numbers for calibration
+ *
+ * @param pws
+ */
+void SCDCalibratePanels2::getRunNumbers(IPeaksWorkspace_sptr pws) {
+  int npeaks = static_cast<int>(pws->getNumberPeaks());
+  for (int i = 0; i < npeaks; ++i) {
+    int rnum = pws->getPeak(i).getRunNumber();
+    if (rnum != -1)
+      m_RunNumbers.insert(rnum);
+  }
+}
+
+/**
  * @brief Select peaks with give bankname
  *
  * @param pws
@@ -619,6 +656,32 @@ SCDCalibratePanels2::selectPeaksByBankName(IPeaksWorkspace_sptr pws,
   fltpk_alg->setProperty("InputWorkspace", pws);
   fltpk_alg->setProperty("BankName", bankname);
   fltpk_alg->setProperty("Criterion", "=");
+  fltpk_alg->setProperty("OutputWorkspace", outputwsn);
+  fltpk_alg->executeAsChildAlg();
+
+  PeaksWorkspace_sptr outWS = fltpk_alg->getProperty("OutputWorkspace");
+  IPeaksWorkspace_sptr ows = std::dynamic_pointer_cast<IPeaksWorkspace>(outWS);
+  return outWS;
+}
+
+/**
+ * @brief Select peaks with give bankname
+ *
+ * @param pws
+ * @param bankname
+ * @param outputwsn
+ * @return DataObjects::PeaksWorkspace_sptr
+ */
+IPeaksWorkspace_sptr
+SCDCalibratePanels2::selectPeaksByRunNumber(IPeaksWorkspace_sptr pws,
+                                            const int runnumber,
+                                            const std::string outputwsn) {
+  IAlgorithm_sptr fltpk_alg = createChildAlgorithm("FilterPeaks");
+  fltpk_alg->setLogging(LOGCHILDALG);
+  fltpk_alg->setProperty("InputWorkspace", pws);
+  fltpk_alg->setProperty("FilterValue", static_cast<double>(runnumber));
+  fltpk_alg->setProperty("Operator", "=");
+  fltpk_alg->setProperty("FilterVariable", "RunNumber");
   fltpk_alg->setProperty("OutputWorkspace", outputwsn);
   fltpk_alg->executeAsChildAlg();
 
@@ -653,10 +716,10 @@ SCDCalibratePanels2::getIdealQSampleAsHistogram1D(IPeaksWorkspace_sptr pws) {
   // directly compute qsample from UBmatrix and HKL
   // auto ubmatrix = pws->sample().getOrientedLattice().getUB();
 
-  auto G = pws->sample().getOrientedLattice().getG();
+  auto B = pws->sample().getOrientedLattice().getB();
 
-  V3D md = V3D(G[0][0],G[1][1],G[2][2]);
-  V3D od = V3D(G[1][2],G[0][2],G[0][1]);
+  V3D md = V3D(B[0][0],B[1][1],B[2][2]);
+  V3D od = V3D(B[1][2],B[0][2],B[0][1]);
 
   for (int i = 0; i < npeaks; ++i) {
 
@@ -666,6 +729,7 @@ SCDCalibratePanels2::getIdealQSampleAsHistogram1D(IPeaksWorkspace_sptr pws) {
     for (int j = 0; j < 3; ++j) {
       xvector[i * 3 + j] = i * 3 + j;
       evector[i * 3 + j] = 1;
+      //yvector[i * 3 + j] = 0;
           
       yvector[i * 3 + j + 0] = HKL[j];
       yvector[i * 3 + j + 3] = md[j];

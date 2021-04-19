@@ -35,7 +35,9 @@ public:
                   const size_t order) const override;
 
   void setPeakWorkspace(Mantid::API::IPeaksWorkspace_sptr &pws,
-                        const std::string componentName);
+                        const std::string componentName,
+                        const std::vector<Mantid::Kernel::Matrix<double>> UBMatrix, 
+                        const std::vector<int> UBRun);
 
 private:
   /// temp workspace holder
@@ -44,6 +46,9 @@ private:
   mutable int n_iter;
 
   mutable std::vector<double> m_tofs;
+
+  mutable std::vector<Mantid::Kernel::Matrix<double>> m_UBMatrix;
+  mutable std::vector<int> m_UBRun;
 
   const bool LOGCHILDALG{false};
   const Mantid::Kernel::V3D UNSET_HKL{0, 0, 0};

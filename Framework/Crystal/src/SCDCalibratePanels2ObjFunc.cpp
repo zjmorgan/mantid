@@ -54,7 +54,8 @@ SCDCalibratePanels2ObjFunc::SCDCalibratePanels2ObjFunc() {
 }
 
 void SCDCalibratePanels2ObjFunc::setPeakWorkspace(
-    IPeaksWorkspace_sptr &pws, const std::string componentName) {
+    IPeaksWorkspace_sptr &pws, const std::string componentName, 
+    const std::vector<Mantid::Kernel::Matrix<double>> UBMatrix, const std::vector<int> UBRun) {
   m_pws = pws->clone();
   m_cmpt = componentName;
 
@@ -72,6 +73,11 @@ void SCDCalibratePanels2ObjFunc::setPeakWorkspace(
 
   for (int i = 0; i < m_pws->getNumberPeaks(); ++i) {
     m_tofs.push_back(m_pws->getPeak(i).getTOF());
+  }
+
+  for (std::size_t i = 0; i < UBRun.size(); ++i){
+    m_UBMatrix.push_back(UBMatrix[i]);
+    m_UBRun.push_back(UBRun[i]);
   }
 
 }
@@ -174,14 +180,20 @@ void SCDCalibratePanels2ObjFunc::function1D(double *out,
 
   pw = recalculateUBIndexPeaks(pw);
 
-  auto G = pw->sample().getOrientedLattice().getG();
+  auto B = pw->sample().getOrientedLattice().getB();
 
-  V3D md = V3D(G[0][0],G[1][1],G[2][2]);
-  V3D od = V3D(G[1][2],G[0][2],G[0][1]);
+  V3D md = V3D(B[0][0],B[1][1],B[2][2]);
+  V3D od = V3D(B[1][2],B[0][2],B[0][1]);
 
   for (int i = 0; i < pw->getNumberPeaks(); ++i) {
     
-    V3D HKL = pw->getPeak(i).getHKL();
+    //V3D HKL = pw->getPeak(i).getHKL();
+
+    auto ind = std::distance(m_UBRun.begin(), std::find(m_UBRun.begin(), m_UBRun.end(), pw->getPeak(i).getRunNumber()));
+    auto UB_inv = m_UBMatrix[ind];
+    UB_inv.Invert();
+
+    V3D HKL = UB_inv * pw->getPeak(i).getQSampleFrame() / (2 * M_PI);
 
     for (int j = 0; j < 3; ++j) {
       out[i * 3 + j + 0] = HKL[j];
@@ -274,7 +286,7 @@ IPeaksWorkspace_sptr SCDCalibratePanels2ObjFunc::rotateInstrumentComponentBy(
 }
 
 /**
- * @brief update UB matrix embeded in the peakworkspace using lattice constants
+ * @brief update UB matrix embeded in the peakworkspace using indexed peaks
  *        and redo the peak indexation afterwards
  *
  * @param pws
