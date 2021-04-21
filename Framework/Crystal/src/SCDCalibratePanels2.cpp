@@ -268,8 +268,8 @@ void SCDCalibratePanels2::exec() {
 
     updateUBMatrix(pwsRuni);
 
-    m_UMatrix.push_back(pwsRuni->sample().getOrientedLattice().getU());
-    m_URun.push_back(runnumber);
+    m_UBMatrix.push_back(pwsRuni->sample().getOrientedLattice().getUB());
+    m_UBRun.push_back(runnumber);
   }
 
   // STEP_2: optimize T0,L1,L2,etc.
@@ -337,7 +337,7 @@ void SCDCalibratePanels2::optimizeT0(IPeaksWorkspace_sptr pws) {
   MatrixWorkspace_sptr t0ws = getIdealQSampleAsHistogram1D(pws);
 
   auto objf = std::make_shared<SCDCalibratePanels2ObjFunc>();
-  objf->setPeakWorkspace(pws, "none", m_UMatrix, m_URun);
+  objf->setPeakWorkspace(pws, "none", m_UBMatrix, m_UBRun);
   fitT0_alg->setProperty("Function",
                          std::dynamic_pointer_cast<IFunction>(objf));
 
@@ -382,7 +382,7 @@ void SCDCalibratePanels2::optimizeL1(IPeaksWorkspace_sptr pws) {
   // fit algorithm for the optimization of L1
   IAlgorithm_sptr fitL1_alg = createChildAlgorithm("Fit", -1, -1, false);
   auto objf = std::make_shared<SCDCalibratePanels2ObjFunc>();
-  objf->setPeakWorkspace(pws, "moderator", m_UMatrix, m_URun);
+  objf->setPeakWorkspace(pws, "moderator", m_UBMatrix, m_UBRun);
   fitL1_alg->setProperty("Function",
                          std::dynamic_pointer_cast<IFunction>(objf));
 
@@ -452,7 +452,7 @@ void SCDCalibratePanels2::optimizeBanks(IPeaksWorkspace_sptr pws) {
     IAlgorithm_sptr fitBank_alg = createChildAlgorithm("Fit", -1, -1, false);
     //---- setup obj fun def
     auto objf = std::make_shared<SCDCalibratePanels2ObjFunc>();
-    objf->setPeakWorkspace(pwsBanki, bankname, m_UMatrix, m_URun);
+    objf->setPeakWorkspace(pwsBanki, bankname, m_UBMatrix, m_UBRun);
     fitBank_alg->setProperty("Function",
                              std::dynamic_pointer_cast<IFunction>(objf));
 
@@ -567,17 +567,17 @@ void SCDCalibratePanels2::updateUBMatrix(IPeaksWorkspace_sptr pws) {
   findUB_alg->setProperty("Tolerance", 1.0); // values
   findUB_alg->executeAsChildAlg();
 
-  IAlgorithm_sptr calcUB_alg =
-      createChildAlgorithm("CalculateUMatrix", -1, -1, false);
-  calcUB_alg->setLogging(LOGCHILDALG);
-  calcUB_alg->setProperty("PeaksWorkspace", pws);
-  calcUB_alg->setProperty("a", m_a);
-  calcUB_alg->setProperty("b", m_b);
-  calcUB_alg->setProperty("c", m_c);
-  calcUB_alg->setProperty("alpha", m_alpha);
-  calcUB_alg->setProperty("beta", m_beta);
-  calcUB_alg->setProperty("gamma", m_gamma);
-  calcUB_alg->executeAsChildAlg();
+  // IAlgorithm_sptr calcUB_alg =
+  //     createChildAlgorithm("CalculateUMatrix", -1, -1, false);
+  // calcUB_alg->setLogging(LOGCHILDALG);
+  // calcUB_alg->setProperty("PeaksWorkspace", pws);
+  // calcUB_alg->setProperty("a", m_a);
+  // calcUB_alg->setProperty("b", m_b);
+  // calcUB_alg->setProperty("c", m_c);
+  // calcUB_alg->setProperty("alpha", m_alpha);
+  // calcUB_alg->setProperty("beta", m_beta);
+  // calcUB_alg->setProperty("gamma", m_gamma);
+  // calcUB_alg->executeAsChildAlg();
 
   //Since UB is updated, we need to redo the indexation
   IAlgorithm_sptr idxpks_alg =
@@ -716,24 +716,24 @@ SCDCalibratePanels2::getIdealQSampleAsHistogram1D(IPeaksWorkspace_sptr pws) {
   // directly compute qsample from UBmatrix and HKL
   // auto ubmatrix = pws->sample().getOrientedLattice().getUB();
 
-  auto B = pws->sample().getOrientedLattice().getB();
+  //auto B = pws->sample().getOrientedLattice().getB();
 
-  V3D md = V3D(B[0][0],B[1][1],B[2][2]);
-  V3D od = V3D(B[1][2],B[0][2],B[0][1]);
+  //V3D md = V3D(B[0][0],B[1][1],B[2][2]);
+  //V3D od = V3D(B[1][2],B[0][2],B[0][1]);
 
   for (int i = 0; i < npeaks; ++i) {
 
-    V3D HKL = pws->getPeak(i).getIntHKL();
+    //V3D HKL = pws->getPeak(i).getIntHKL();
 
     // qv = qv / qv.norm();
     for (int j = 0; j < 3; ++j) {
       xvector[i * 3 + j] = i * 3 + j;
       evector[i * 3 + j] = 1;
-      //yvector[i * 3 + j] = 0;
+      yvector[i * 3 + j] = 0;
           
-      yvector[i * 3 + j + 0] = HKL[j];
-      yvector[i * 3 + j + 3] = md[j];
-      yvector[i * 3 + j + 6] = od[j];
+      //yvector[i * 3 + j + 0] = HKL[j];
+      //yvector[i * 3 + j + 3] = md[j];
+      //yvector[i * 3 + j + 6] = od[j];
     }
   }
 
